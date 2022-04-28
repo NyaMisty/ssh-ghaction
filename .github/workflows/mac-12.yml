@@ -1,17 +1,18 @@
-name: Ubuntu-20.04
+name: MacOS 12
 on:
   workflow_dispatch:
     inputs:
       debug_enabled:
-        description: 'Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)'
+        description: 'Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)'     
         required: false
         default: true
+
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: macos-12
     steps:
       # Enable tmate debugging of manually-triggered workflows if the input option was provided
       - name: Setup tmate session
