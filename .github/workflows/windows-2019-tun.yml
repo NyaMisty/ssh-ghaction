@@ -1,4 +1,5 @@
-name: Windows Server 2019
+name: Windows Server 2019 TunShell
+
 on:
   workflow_dispatch:
     inputs:
@@ -6,6 +7,7 @@ on:
         description: 'Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)'     
         required: false
         default: true
+  push:
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -14,14 +16,17 @@ jobs:
     runs-on: windows-2019
     steps:
       # Enable tmate debugging of manually-triggered workflows if the input option was provided
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.debug_enabled }}
+      #- name: Setup tmate session
+      #  uses: mxschmitt/action-tmate@v3
+      #  if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.debug_enabled }}
       - name: Enable Shell Access
-        if: ${{ always() && github.event_name == 'workflow_dispatch' && github.event.inputs.shell_enabled }}
+        #if: ${{ always() && github.event_name == 'workflow_dispatch' && github.event.inputs.debug_enabled }}
         run: |
-          bash -c "KEYS=$(curl -sSf -X POST https://relay.tunshell.com/api/sessions); echo $KEYS | jq -r '.peer1' > peer1; echo $KEYS | jq -r '.peer2' > peer2"
-          echo "Connect to github actions node using"
-          powershell "$peer2 = Get-Content peer2; echo 'sh <(curl -sSf https://lets.tunshell.com/init.sh) L $peer2 123456 relay.tunshell.com'"
-          powershell "$peer1 = Get-Content peer1; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12; &$([scriptblock]::Create((New-Object System.Net.WebClient).DownloadString('https://lets.tunshell.com/init.ps1'))) T $peer1 123456"
-      
+          set -x
+          RELAY=relay.tunshell.com
+          KEYS=$(curl -sSf -X POST https://relay.tunshell.com/api/sessions); echo $KEYS | jq -r '.peer1_key' > peer1; echo $KEYS | jq -r '.peer2_key' > peer2;
+          echo "Connect to github actions node using: sh <(curl -sSf https://lets.tunshell.com/init.sh) L $(cat peer2) 0000000000000000000000 $RELAY"
+          echo "Or: https://tunshell.com/term#$(cat peer2),0000000000000000000000,$RELAY"
+          powershell '[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12; &$([scriptblock]::Create((New-Object System.Net.WebClient).DownloadString("https://lets.tunshell.com/init.ps1"))) '"T $(cat peer1) 0000000000000000000000 $RELAY"
+
+        shell: bash
