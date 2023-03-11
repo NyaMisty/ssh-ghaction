@@ -1,0 +1,30 @@
+name: Ubuntu-20.04 TunShell
+on:
+  workflow_dispatch:
+    inputs:
+      debug_enabled:
+        description: 'Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)'
+        required: false
+        default: true
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Enable Shell Access
+        #if: ${{ always() && github.event_name == 'workflow_dispatch' && github.event.inputs.debug_enabled }}
+        run: |
+          set -x
+          RELAY=relay.tunshell.com
+          SECRET=0000000000000000000000
+          KEYS=$(curl -sSf -X POST https://relay.tunshell.com/api/sessions); echo $KEYS | jq -r '.peer1_key' > peer1; echo $KEYS | jq -r '.peer2_key' > peer2;
+          (while true; do
+            echo "Connect to github actions node using: sh <(curl -sSf https://lets.tunshell.com/init.sh) L $(cat peer2) 0000000000000000000000 $RELAY"
+            echo "Or: https://tunshell.com/term#$(cat peer2),$SECRET,$RELAY"
+            sleep 1
+          done) &
+          curl -sSf https://lets.tunshell.com/init.sh | sh -s -- T $(cat peer1) $SECRET $RELAY
+          #powershell '[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12; &$([scriptblock]::Create((New-Object System.Net.WebClient).DownloadString("https://lets.tunshell.com/init.ps1"))) '"T $(cat peer1) $SECRET $RELAY"
+
