@@ -6,6 +6,7 @@ on:
         description: 'Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)'
         required: false
         default: true
+
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -17,8 +18,3 @@ jobs:
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.debug_enabled }}
-        with:
-          tmate-server-host: bjnode2.misty.moe
-          tmate-server-port: 8022
-          tmate-server-rsa-fingerprint: SHA256:F822zOjJ7ZzvOYPkkFGYCYibo22Fsg9sxymPtEg/whU
-          tmate-server-ed25519-fingerprint: SHA256:0tf8plpAWqHxeJzWQNlE7omGM96v9mw9FaPdMsGPA44
