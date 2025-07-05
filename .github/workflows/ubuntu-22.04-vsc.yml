@@ -1,4 +1,4 @@
-name: Ubuntu-20.04 (VSC)
+name: Ubuntu-22.04 (VSC)
 on:
   workflow_dispatch:
     inputs:
@@ -11,7 +11,7 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Setup VSCode Server session
         uses: NyaMisty/vscode-server-action@main

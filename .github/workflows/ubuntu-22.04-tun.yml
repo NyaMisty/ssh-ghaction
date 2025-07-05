@@ -1,4 +1,4 @@
-name: Ubuntu-20.04 TunShell
+name: Ubuntu-22.04 TunShell
 on:
   workflow_dispatch:
     inputs:
@@ -11,7 +11,7 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Enable Shell Access
         #if: ${{ always() && github.event_name == 'workflow_dispatch' && github.event.inputs.debug_enabled }}
