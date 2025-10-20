@@ -1,0 +1,44 @@
+name: Ubuntu-24.04
+on:
+  workflow_dispatch:
+    inputs:
+      debug_enabled:
+        description: 'Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)'
+        required: false
+        default: true
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - run: |
+          set -xe
+          sudo apt-get -o Dpkg::Options::="--path-exclude=/usr/share/man/*" \
+             -o Dpkg::Options::="--path-exclude=/usr/share/doc/*" \
+             -y install zsh tmux
+          git clone https://github.com/NyaMisty/.misty_envconf_pub ~/.env
+          (git clone https://github.com/gpakosz/.tmux ~/.tmux && cd ~/.tmux && git checkout 785ba173a322720b3c99d2f60eb900e7d2ed1da5)
+          
+          cd ~/.env
+          ./install.sh
+          sudo chsh -s /bin/zsh $(whoami)
+          cd ~
+          ln -sf .tmux/.tmux.conf
+          echo 'export ZSH_THEME=ys' > ~/.zshrc.local
+          echo 'export ENVCONF_BLACKLIST=(proxy pathfix)' >> ~/.zshrc.local
+          #ln -sf ~/.tmux.conf ~/.tmate.conf
+          cat <<'EOF' > ~/.tmate.conf
+          # ~/.tmate.conf
+          unbind C-b               # Release the prefix so tmux can use it
+          set -g prefix C-q        # Put your desired prefix here (Control-q works for me)
+          bind C-q send-prefix     # Send the prefix to apps when we press it twice
+          set -g status off        # Hide the tmate status bar
+          EOF
+
+      # Enable tmate debugging of manually-triggered workflows if the input option was provided
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.debug_enabled }}
