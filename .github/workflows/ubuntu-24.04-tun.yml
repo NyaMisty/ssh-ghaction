@@ -42,6 +42,9 @@ jobs:
             echo "Or: https://tunshell.com/term#$(cat peer2),$SECRET,$RELAY"
             sleep 1
           done) &
-          curl -sSf https://lets.tunshell.com/init.sh | sh -s -- T $(cat peer1) $SECRET $RELAY
+          while true; do
+            (curl -sSf https://lets.tunshell.com/init.sh | sh -s -- T $(cat peer1) $SECRET $RELAY || true)
+            sleep 1
+          done
           #powershell '[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12; &$([scriptblock]::Create((New-Object System.Net.WebClient).DownloadString("https://lets.tunshell.com/init.ps1"))) '"T $(cat peer1) $SECRET $RELAY"
 
