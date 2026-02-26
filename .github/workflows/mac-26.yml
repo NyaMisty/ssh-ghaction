@@ -1,4 +1,4 @@
-name: MacOS 12 (VSC)
+name: MacOS 26
 on:
   workflow_dispatch:
     inputs:
@@ -12,11 +12,9 @@ env:
 
 jobs:
   build:
-    runs-on: macos-12
+    runs-on: macos-26-large
     steps:
-      - name: Setup VSCode Server session
-        uses: NyaMisty/vscode-server-action@main
+      # Enable tmate debugging of manually-triggered workflows if the input option was provided
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.debug_enabled }}
-        with:
-          #machineName: myMachine # optional, default: GitHub workflow run ID
-          timeout: '3600000' # 1 hour

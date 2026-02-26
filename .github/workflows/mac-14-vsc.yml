@@ -1,4 +1,4 @@
-name: MacOS 11 (VSC)
+name: MacOS 14 (VSC)
 on:
   workflow_dispatch:
     inputs:
@@ -12,7 +12,7 @@ env:
 
 jobs:
   build:
-    runs-on: macos-11
+    runs-on: macos-14-large
     steps:
       - name: Setup VSCode Server session
         uses: NyaMisty/vscode-server-action@main

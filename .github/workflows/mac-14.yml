@@ -1,4 +1,4 @@
-name: MacOS 12
+name: MacOS 14
 on:
   workflow_dispatch:
     inputs:
@@ -12,7 +12,7 @@ env:
 
 jobs:
   build:
-    runs-on: macos-12
+    runs-on: macos-14-large
     steps:
       # Enable tmate debugging of manually-triggered workflows if the input option was provided
       - name: Setup tmate session
