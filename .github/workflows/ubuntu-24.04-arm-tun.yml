@@ -36,7 +36,6 @@ jobs:
           echo "https://$GITHUB_TOKEN:@github.com" > ~/.git-credentials
           chmod 600 ~/.git-credentials
 
-
       - name: Enable Shell Access
         #if: ${{ always() && github.event_name == 'workflow_dispatch' && github.event.inputs.debug_enabled }}
         run: |
@@ -45,13 +44,36 @@ jobs:
           SECRET=0000000000000000000000
           KEYS=$(curl -sSf -X POST https://relay.tunshell.com/api/sessions); echo $KEYS | jq -r '.peer1_key' > peer1; echo $KEYS | jq -r '.peer2_key' > peer2;
           (while true; do
-            echo "Connect to github actions node using: sh <(curl -sSf https://lets.tunshell.com/init.sh) L $(cat peer2) 0000000000000000000000 $RELAY"
-            echo "Or: https://tunshell.com/term#$(cat peer2),$SECRET,$RELAY"
-            sleep 1
-          done) &
-          while true; do
             (curl -sSf https://lets.tunshell.com/init.sh | sh -s -- T $(cat peer1) $SECRET $RELAY || true)
             sleep 1
-          done
+          done) &
+          
+          (while true; do
+            echo "Connect to github actions node using: sh <(curl -sSf https://lets.tunshell.com/init.sh) L $(cat peer2) 0000000000000000000000 $RELAY"
+            echo "Or: https://tunshell.com/term#$(cat peer2),$SECRET,$RELAY"
+            sleep 30
+          done) &
+          
+          wget https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-`dpkg --print-architecture`.deb
+          sudo apt install -y ./cloudflared-linux-`dpkg --print-architecture`.deb
+          
+          wget -O ../ttyd https://github.com/tsl0922/ttyd/releases/download/1.7.4/ttyd.$(uname -p)
+          chmod 777 ../ttyd
+          (while true; do
+            ../ttyd -p 8391 -a -W zsh || true
+            sleep 1
+          done) &
+          (while true; do
+            cloudflared tunnel --url http://localhost:8391 > ../mylog.txt 2>&1 &
+            sleep 1
+          done) &
+          (while true; do
+            echo "Connect to ttyd use:"
+            cat ../mylog.txt
+            sleep 30
+          done) &
+
+          while true; do sleep 86400; done
+          
           #powershell '[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12; &$([scriptblock]::Create((New-Object System.Net.WebClient).DownloadString("https://lets.tunshell.com/init.ps1"))) '"T $(cat peer1) $SECRET $RELAY"
 
