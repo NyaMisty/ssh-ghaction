@@ -64,8 +64,7 @@ jobs:
             ../ttyd -p 8391 -a -W zsh || true
             sleep 1
           done) &
-          (while true; do
-            cloudflared tunnel --url http://localhost:8391 > ../mylog.txt 2>&1 &
+          (while ! cloudflared tunnel --url http://localhost:8391 > ../mylog.txt 2>&1; do
             sleep 1
           done) &
           (while true; do
